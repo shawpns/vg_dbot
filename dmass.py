@@ -3,6 +3,7 @@ from discord.ext import commands
 import platform
 import random
 import time
+import asyncio
 
 bot = commands.Bot(command_prefix='+', case_insensitive=True)
 
@@ -56,6 +57,27 @@ async def send(ctx, *, content: str):
             await ctx.send("Message Sent to Targets")
         except:
             await ctx.send("DM can't send to : {} :x: ".format(member))
+            
+@bot.event
+async def on_member_join(member):
+    await member.create_dm()
+    await member.dm_channel.send(
+        f'Hi {member.name}, welcome to my Discord server!'
+    )
+     
+@bot.command(name='create-channel')
+@commands.has_role(':)')
+async def create_channel(ctx, channel_name='vg-temp-channel'):
+    guild = ctx.guild
+    existing_channel = discord.utils.get(guild.channels, name=channel_name)
+    if not existing_channel:
+        print(f'Creating a new channel: {channel_name}')
+        await guild.create_text_channel(channel_name)
+        
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.CheckFailure):
+        await ctx.send('You do not have the correct role for this command.')
 
 
 bot.run("NzQxNTk4MTMyNTA0MzYzMDIw.Xy55FQ.1V940d4C7FKa2TEq2BnJ-mxA3I4")
